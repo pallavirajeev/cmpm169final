@@ -42,7 +42,7 @@ body {
   
 /* Mouse-over effects */
 .slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
+    opacity: .9; /* Fully shown on mouse-over */
 }
 
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
@@ -51,13 +51,13 @@ body {
     appearance: none;
     width: 25px; /* Set a specific slider handle width */
     height: 25px; /* Slider handle height */
-    background: #04AA6D; /* Green background */
-    cursor: pointer; /* Cursor on hover */
+    background: #000000; /* Green background */
+    cursor: grab; /* Cursor on hover */
 }
 
 .slider::-moz-range-thumb {
     width: 25px; /* Set a specific slider handle width */
     height: 25px; /* Slider handle height */
     background: #04AA6D; /* Green background */
-    cursor: pointer; /* Cursor on hover */
+    cursor: grab; /* Cursor on hover */
 }
