@@ -119,7 +119,7 @@ function draw() {
 
         velocities[i].x = 0.9999 * (positions[i].x - oldPositions[i].x) / timeStep;
         velocities[i].y = 0.9999 * (positions[i].y - oldPositions[i].y) / timeStep;
-
+        noStroke();
         fill(110, 150, 255);
         ellipse(positions[i].x, positions[i].y, diameter, diameter);
 
@@ -137,6 +137,7 @@ function draw() {
             positions[i].x = -50;
         }
     }
+    stroke(0);
 
     let x = 10; // X position for the first building
     let ground = height - 50; // ground line position 
