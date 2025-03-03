@@ -113,7 +113,7 @@ function generateBuildings() {
 }
 
 function draw() {
-    background(255); // background = white 
+    background(0); // background = black 
     stroke(0); // building outline = black
     strokeWeight(3); 
     
