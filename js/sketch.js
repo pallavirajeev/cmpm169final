@@ -6,6 +6,15 @@ let color = 0;
 let sliders = [];
 let sliderValues = [];
 
+let velocities = [], deltaCtrs = [], deltas = [], frameRateVals = [];
+let oldPositions = [], positions = [];
+let numDiscs = 1042;
+let radius = 3;
+let diameter = radius * 1.5;
+let timeStep = 0.01;
+let wind = 0.0;
+let gravity = 0.9;
+
 function setupSliders() {
     sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -23,12 +32,51 @@ function setupSliders() {
     }
 }
 
+function resolveParticleCollisions(idxA, idxB) {
+    let xa = positions[idxA].x, xb = positions[idxB].x;
+    let ya = positions[idxA].y, yb = positions[idxB].y;
+    let normalDirX = xa - xb;
+    let normalDirY = ya - yb;
+    let dist = sqrt(normalDirX * normalDirX + normalDirY * normalDirY);
+    let overlapDistance = 2 * radius - dist;
+    
+    if (overlapDistance > 0 && dist > 0.001) {
+        normalDirX /= dist;
+        normalDirY /= dist;
+        let moveAmount = overlapDistance / 2;
+        positions[idxA].x += normalDirX * moveAmount;
+        positions[idxA].y += normalDirY * moveAmount;
+        positions[idxB].x -= normalDirX * moveAmount;
+        positions[idxB].y -= normalDirY * moveAmount;
+
+        let relativeVelocityX = velocities[idxA].x - velocities[idxB].x;
+        let relativeVelocityY = velocities[idxA].y - velocities[idxB].y;
+        let dotProduct = relativeVelocityX * normalDirX + relativeVelocityY * normalDirY;
+        let impulse = dotProduct / 2;
+        velocities[idxA].x -= impulse * normalDirX;
+        velocities[idxA].y -= impulse * normalDirY * 1.9;
+        velocities[idxB].x += impulse * normalDirX;
+        velocities[idxB].y += impulse * normalDirY;
+    }
+}
+
 function setup() {
     canvasContainer = $("#canvas-container");
     let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
     canvas.parent("canvas-container");
-
     setupSliders();
+    let randomX = 0, randomY = 0;
+    let ctr = numDiscs;
+    while (ctr >= 0) {
+        randomX = random(width);
+        randomY = random(height + 50, height + 400);
+        velocities.push(createVector((-5 + random(10)) * 0.96, (-5 + random(10)) * 0.34));
+        deltaCtrs.push(0);
+        deltas.push(createVector(0.0, 0.0));
+        positions.push(createVector(randomX, randomY));
+        oldPositions.push(createVector(0, 0));
+        ctr -= 1;
+    }
     noLoop(); 
 }
 
@@ -39,6 +87,57 @@ function draw() {
     stroke(0); // building outline = black
     strokeWeight(3); 
     
+    wind = map(sliderValues[3], 0, 100, -3, 3); // Medication slider controls wind
+    gravity = map(sliderValues[2], 0, 100, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
+    
+    let allowRespawning = gravity > 1;
+    
+    for (let i = 0; i < numDiscs; i++) {
+        oldPositions[i].x = positions[i].x;
+        oldPositions[i].y = positions[i].y;
+
+        positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
+        positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
+        
+        velocities[i].x *= 0.97;
+        velocities[i].y *= 0.97;
+
+        deltas[i].x = 0.0;
+        deltas[i].y = 0.0;
+        deltaCtrs[i] = 0;
+
+        for (let j = 0; j < numDiscs; j++) {
+            if (i !== j) {
+                resolveParticleCollisions(i, j);
+            }
+        }
+        
+        if (deltaCtrs[i] > 0) {
+            positions[i].x += 1.2 * deltas[i].x / deltaCtrs[i];
+            positions[i].y += 1.2 * deltas[i].y / deltaCtrs[i];
+        }
+
+        velocities[i].x = 0.9999 * (positions[i].x - oldPositions[i].x) / timeStep;
+        velocities[i].y = 0.9999 * (positions[i].y - oldPositions[i].y) / timeStep;
+
+        fill(110, 150, 255);
+        ellipse(positions[i].x, positions[i].y, diameter, diameter);
+
+        if (positions[i].y > height + 200) {
+            if (allowRespawning) {
+                positions[i].y = random(-200, -50);
+                positions[i].x = random(width);
+                velocities[i].y = random(1, 3);
+            }
+        }
+
+        if (positions[i].x < -50) {
+            positions[i].x = width + 50;
+        } else if (positions[i].x > width + 50) {
+            positions[i].x = -50;
+        }
+    }
+
     let x = 10; // X position for the first building
     let ground = height - 50; // ground line position 
     
