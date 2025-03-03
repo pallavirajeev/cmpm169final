@@ -15,6 +15,9 @@ let timeStep = 0.01;
 let wind = 0.0;
 let gravity = 0.9;
 
+let buildings = []; //array for buildings 
+let ground;
+
 function setupSliders() {
     sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -65,6 +68,8 @@ function setup() {
     let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
     canvas.parent("canvas-container");
     setupSliders();
+    
+    // Initialize particles
     let randomX = 0, randomY = 0;
     let ctr = numDiscs;
     while (ctr >= 0) {
@@ -77,13 +82,38 @@ function setup() {
         oldPositions.push(createVector(0, 0));
         ctr -= 1;
     }
-    noLoop(); 
+    
+    ground = height; // ground line position
+    generateBuildings(); // generate buildings only once at startup
 }
 
+function generateBuildings() {
+    buildings = []; // clear any existing buildings
+    let x = 10; // X position for the first building
+    
+    // generates buildings for entire width
+    while (x < width - 50) {
+        let w = random(50, 100); // random width for buildings
+        let h = random(100, 250); // random height for buildings
+        let roofStyle = int(random(3)); // random roof style
+        
+        // store building data
+        buildings.push({
+            x: x,
+            y: ground - h,
+            w: w,
+            h: h,
+            roofStyle: roofStyle,
+            cols: int(random(2, 4)),
+            rows: int(random(3, 6))
+        });
+        
+        x += w + 10; // new x position: move to the right and adding spacing btwn buildings
+    }
+}
 
-// 
 function draw() {
-    background(255); // background = white 
+    background(0); // background = black 
     stroke(0); // building outline = black
     strokeWeight(3); 
     
@@ -92,6 +122,7 @@ function draw() {
     
     let allowRespawning = gravity > 1;
     
+    // Update and draw particles
     for (let i = 0; i < numDiscs; i++) {
         oldPositions[i].x = positions[i].x;
         oldPositions[i].y = positions[i].y;
@@ -137,47 +168,45 @@ function draw() {
             positions[i].x = -50;
         }
     }
-    stroke(0);
-
-    let x = 10; // X position for the first building
-    let ground = height - 50; // ground line position 
     
-    // generates buildings for entire width (can change depending on where we want buildings to end)
-    while (x < width - 50) {
-        let w = random(50, 100); // random width for buildings
-        let h = random(100, 250); // random height for buildings
-        drawBuilding(x, ground - h, w, h); 
-        x += w + 10; // new x position: move to the right and adding spacing btwn buildings
+    stroke(0);
+    
+    for (let building of buildings) {
+        drawBuilding(
+            building.x, 
+            building.y, 
+            building.w, 
+            building.h, 
+            building.roofStyle,
+            building.cols,
+            building.rows
+        );
     }
     
     // draw ground line
     line(0, ground, width, ground);
 }
 
-function drawBuilding(x, y, w, h) {
+function drawBuilding(x, y, w, h, roofStyle, cols, rows) {
     fill(200); // building = grey
     rect(x, y, w, h); // draw rectangle building
     
     // different rooftop styles (can add more later)
-    let style = int(random(3)); // randomly picks one of three styles
-    if (style === 0) {
+    if (roofStyle === 0) {
         // triangle roof
         triangle(x, y, x + w / 2, y - 20, x + w, y);
-    } else if (style === 1) {
+    } else if (roofStyle === 1) {
         // rectangle roof
         rect(x + w * 0.25, y - 20, w * 0.5, 20);
-    } else if (style === 2) {
+    } else if (roofStyle === 2) {
         // no roof
         line(x, y, x + w, y);
     }
     
-    drawWindows(x, y, w, h);
+    drawWindows(x, y, w, h, cols, rows);
 }
 
-function drawWindows(x, y, w, h) {
-    let cols = int(random(2, 4)); // random number of window columns
-    let rows = int(random(3, 6)); // random number of window rows
-    
+function drawWindows(x, y, w, h, cols, rows) {
     let winW = w / cols * 0.6; // window width 
     let winH = h / rows * 0.6; // window height 
     let paddingX = (w - cols * winW) / (cols + 1); // horizontal padding
@@ -195,5 +224,6 @@ function drawWindows(x, y, w, h) {
 
 function windowResized() {
     resizeCanvas(canvasContainer.width(), canvasContainer.height());
-    redraw();
+    ground = height; // update ground position
+    generateBuildings(); // regenerate buildings when window resized
 }
