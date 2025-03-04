@@ -96,8 +96,10 @@ function setup() {
     generateBuildings(); // generate buildings only once at startup
     
     windSound.setVolume(.3);
-    windSound.play();
-    rainSound.play();
+    //windSound.play();
+    //windSound.loop(true);
+    //rainSound.play();
+    //rainSound.loop(true);
 }
 
 function generateBuildings() {
@@ -125,6 +127,17 @@ function generateBuildings() {
     }
 }
 
+function mousePressed(){
+    if(!rainSound.isPlaying()){
+        //rainSound.play();
+        rainSound.loop(true);
+    }
+    if(!windSound.isPlaying()){
+        //windSound.play();
+        windSound.loop(true);
+    }
+}
+
 function draw() {
     background(0); // background = black 
     stroke(0); // building outline = black
@@ -133,7 +146,7 @@ function draw() {
     wind = map(sliderValues[3], 0, 100, -3, 3); // Medication slider controls wind
     gravity = map(sliderValues[2], 0, 100, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
 
-    windPan = map(sliderValues[3], 0, 100, 1, -1); // Medication slider controls wind, affect pan of wind
+    windPan = map(sliderValues[3], 0, 100, .8, -.8); // Medication slider controls wind, affect pan of wind
     rainVolume = map(sliderValues[2], 0, 100, 1, 0); // Therapy slider controls intensity, affects volume of rain
     
     let allowRespawning = gravity > 1;
