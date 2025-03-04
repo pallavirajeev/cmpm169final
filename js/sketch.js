@@ -15,6 +15,9 @@ let timeStep = 0.01;
 let wind = 0.0;
 let gravity = 0.9;
 
+let windSound;
+let rainSound;
+
 let buildings = []; //array for buildings 
 let ground;
 
@@ -63,6 +66,12 @@ function resolveParticleCollisions(idxA, idxB) {
     }
 }
 
+function preload() {
+    //sound loading
+    windSound = loadSound('./assets/wind.mp3');
+    rainSound = loadSound('./assets/rain.mp3');
+}
+
 function setup() {
     canvasContainer = $("#canvas-container");
     let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
@@ -85,6 +94,10 @@ function setup() {
     
     ground = height; // ground line position
     generateBuildings(); // generate buildings only once at startup
+    
+    windSound.setVolume(.3);
+    windSound.play();
+    rainSound.play();
 }
 
 function generateBuildings() {
@@ -119,6 +132,9 @@ function draw() {
     
     wind = map(sliderValues[3], 0, 100, -3, 3); // Medication slider controls wind
     gravity = map(sliderValues[2], 0, 100, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
+
+    windPan = map(sliderValues[3], 0, 100, 1, -1); // Medication slider controls wind, affect pan of wind
+    rainVolume = map(sliderValues[2], 0, 100, 1, 0); // Therapy slider controls intensity, affects volume of rain
     
     let allowRespawning = gravity > 1;
     
@@ -185,6 +201,10 @@ function draw() {
     
     // draw ground line
     line(0, ground, width, ground);
+
+    windSound.pan(windPan,.5);
+    rainSound.setVolume(rainVolume,.5);
+
 }
 
 function drawBuilding(x, y, w, h, roofStyle, cols, rows) {
