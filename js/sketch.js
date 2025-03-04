@@ -91,7 +91,7 @@ function setup() {
     let ctr = numDiscs;
     while (ctr >= 0) {
         randomX = random(width);
-        randomY = random(height + 50, height + 400);
+        randomY = random(height, height + 400);
         velocities.push(createVector((-5 + random(10)) * 0.96, (-5 + random(10)) * 0.34));
         deltaCtrs.push(0);
         deltas.push(createVector(0.0, 0.0));
@@ -149,8 +149,9 @@ function draw() {
     strokeWeight(3); 
     
     wind = map(sliderValues[3], 0, 100, -3, 3); // Medication slider controls wind
-    gravity = map(sliderValues[2], 0, 100, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
-
+    gravity = map(sliderValues[2], 0, 50, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
+    gravity = max(gravity, 0.5);
+    
     windPan = map(sliderValues[3], 0, 100, 1, -1); // Medication slider controls wind, affect pan of wind
     rainVolume = map(sliderValues[2], 0, 100, 1, 0); // Therapy slider controls intensity, affects volume of rain
     
@@ -190,16 +191,17 @@ function draw() {
 
         if (positions[i].y > height + 200) {
             if (allowRespawning) {
+                
                 positions[i].y = random(-200, -50);
                 positions[i].x = random(width);
                 velocities[i].y = random(1, 3);
             }
         }
 
-        if (positions[i].x < -50) {
-            positions[i].x = width + 50;
-        } else if (positions[i].x > width + 50) {
-            positions[i].x = -50;
+        if (positions[i].x < -10) {
+            positions[i].x = width + 10;
+        } else if (positions[i].x > width + 10) {
+            positions[i].x = -10;
         }
     }
     
