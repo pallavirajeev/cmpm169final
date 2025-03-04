@@ -161,7 +161,7 @@ function draw() {
     stroke(0); // building outline = black
     strokeWeight(3); 
     
-    wind = map(sliderValues[3], 0, 100, -3, 3); // Medication slider controls wind
+    wind = map(sliderValues[3], 0, 100, -2, 2); // Medication slider controls wind
     gravity = map(sliderValues[2], 0, 50, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
     gravity = max(gravity, 0.5);
     
@@ -178,8 +178,8 @@ function draw() {
         positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
         positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
         
-        velocities[i].x *= 0.97;
-        velocities[i].y *= 0.97;
+        velocities[i].x *= 0.96;
+        velocities[i].y *= 0.96;
 
         deltas[i].x = 0.0;
         deltas[i].y = 0.0;
