@@ -191,6 +191,9 @@ function draw() {
         
         velocities[i].x *= 0.97;
         velocities[i].y *= 0.96;
+        velocities[i].x = constrain(velocities[i].x, -1000, 1000);
+        //velocities[i].y = constrain(velocities[i].y, -100, 100);
+
 
         deltas[i].x = 0.0;
         deltas[i].y = 0.0;
