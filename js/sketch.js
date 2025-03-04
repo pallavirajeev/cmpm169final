@@ -160,6 +160,17 @@ function draw() {
 
     stroke(0); // building outline = black
     strokeWeight(3); 
+    for (let building of buildings) {
+        drawBuilding(
+            building.x, 
+            building.y, 
+            building.w, 
+            building.h, 
+            building.roofStyle,
+            building.cols,
+            building.rows
+        );
+    }
     
     wind = map(sliderValues[3], 0, 100, -2, 2); // Medication slider controls wind
     gravity = map(sliderValues[2], 0, 50, 9.8, 0.5); // Therapy slider controls intensity (inverted scale for more therapy = less intensity)
@@ -178,7 +189,7 @@ function draw() {
         positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
         positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
         
-        velocities[i].x *= 0.96;
+        velocities[i].x *= 0.97;
         velocities[i].y *= 0.96;
 
         deltas[i].x = 0.0;
@@ -198,7 +209,8 @@ function draw() {
 
         velocities[i].x = 0.9999 * (positions[i].x - oldPositions[i].x) / timeStep;
         velocities[i].y = 0.9999 * (positions[i].y - oldPositions[i].y) / timeStep;
-        noStroke();
+        stroke(0);
+        strokeWeight(1);
         fill(110, 150, 255);
         ellipse(positions[i].x, positions[i].y, diameter, diameter);
 
@@ -217,20 +229,7 @@ function draw() {
             positions[i].x = -10;
         }
     }
-    
     stroke(0);
-    
-    for (let building of buildings) {
-        drawBuilding(
-            building.x, 
-            building.y, 
-            building.w, 
-            building.h, 
-            building.roofStyle,
-            building.cols,
-            building.rows
-        );
-    }
     
     // draw ground line
     line(0, ground, width, ground);
