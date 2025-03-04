@@ -138,7 +138,7 @@ function draw() {
     if (strikeChance() > strikeThreshold) {
         if (lightningCooldown == 0) {
             lightningFlash();
-            lightningCooldown = 20;
+            lightningCooldown = int(random(5, 20));
         } else {
             lightningCooldown--;
             background(0);
