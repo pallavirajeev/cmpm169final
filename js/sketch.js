@@ -121,15 +121,15 @@ function generateBuildings() {
         let roofStyle = int(random(3)); // random roof style
         
         // store building data
-        buildings.push({
-            x: x,
-            y: ground - h,
-            w: w,
-            h: h,
-            roofStyle: roofStyle,
-            cols: int(random(2, 4)),
-            rows: int(random(3, 6))
-        });
+        buildings.push( new Buildings(
+            x,
+            ground - h,
+            w,
+            h,
+            roofStyle,
+            int(random(2, 4)),
+            int(random(3, 6))
+            ));
         
         x += w + 10; // new x position: move to the right and adding spacing btwn buildings
     }
@@ -161,15 +161,7 @@ function draw() {
     stroke(0); // building outline = black
     strokeWeight(3); 
     for (let building of buildings) {
-        drawBuilding(
-            building.x, 
-            building.y, 
-            building.w, 
-            building.h, 
-            building.roofStyle,
-            building.cols,
-            building.rows
-        );
+        building.draw();
     }
     
     wind = map(sliderValues[3], 0, 100, -2, 2); // Medication slider controls wind
@@ -186,11 +178,9 @@ function draw() {
         oldPositions[i].x = positions[i].x;
         oldPositions[i].y = positions[i].y;
 
-        positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
-        positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
+        positions[i].x = (oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind) * 0.97;
+        positions[i].y = (oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep) * 0.96;
         
-        velocities[i].x *= 0.97;
-        velocities[i].y *= 0.96;
         velocities[i].x = constrain(velocities[i].x, -1000, 1000);
         //velocities[i].y = constrain(velocities[i].y, -100, 100);
 
@@ -240,41 +230,6 @@ function draw() {
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
 
-}
-
-function drawBuilding(x, y, w, h, roofStyle, cols, rows) {
-    fill(200); // building = grey
-    rect(x, y, w, h); // draw rectangle building
-    
-    // different rooftop styles (can add more later)
-    if (roofStyle === 0) {
-        // triangle roof
-        triangle(x, y, x + w / 2, y - 20, x + w, y);
-    } else if (roofStyle === 1) {
-        // rectangle roof
-        rect(x + w * 0.25, y - 20, w * 0.5, 20);
-    } else if (roofStyle === 2) {
-        // no roof
-        line(x, y, x + w, y);
-    }
-    
-    drawWindows(x, y, w, h, cols, rows);
-}
-
-function drawWindows(x, y, w, h, cols, rows) {
-    let winW = w / cols * 0.6; // window width 
-    let winH = h / rows * 0.6; // window height 
-    let paddingX = (w - cols * winW) / (cols + 1); // horizontal padding
-    let paddingY = (h - rows * winH) / (rows + 1); // vertical padding
-    
-    fill(255); // window = white
-    for (let i = 0; i < cols; i++) { 
-        for (let j = 0; j < rows; j++) { 
-            let wx = x + paddingX + i * (winW + paddingX); // X position
-            let wy = y + paddingY + j * (winH + paddingY); // Y position
-            rect(wx, wy, winW, winH); // draw the window
-        }
-    }
 }
 
 function strikeChance() {
