@@ -243,7 +243,7 @@ function draw() {
 }
 
 function drawBuilding(x, y, w, h, roofStyle, cols, rows) {
-    fill(200); // building = grey
+    fill(50); // building = grey
     rect(x, y, w, h); // draw rectangle building
     
     // different rooftop styles (can add more later)
@@ -267,7 +267,7 @@ function drawWindows(x, y, w, h, cols, rows) {
     let paddingX = (w - cols * winW) / (cols + 1); // horizontal padding
     let paddingY = (h - rows * winH) / (rows + 1); // vertical padding
     
-    fill(255); // window = white
+    fill(252, 188, 58); // window = yellow
     for (let i = 0; i < cols; i++) { 
         for (let j = 0; j < rows; j++) { 
             let wx = x + paddingX + i * (winW + paddingX); // X position
