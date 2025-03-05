@@ -10,7 +10,7 @@ class Buildings{
     }
 
     draw(){
-        fill(200); // building = grey
+        fill(50); // building = grey
         rect(this.x, this.y, this.w, this.h); // draw rectangle building
         
         // different rooftop styles (can add more later)
@@ -33,7 +33,7 @@ class Buildings{
         let paddingX = (this.w - this.cols * winW) / (this.cols + 1); // horizontal padding
         let paddingY = (this.h - this.rows * winH) / (this.rows + 1); // vertical padding
         
-        fill(255); // window = white
+        fill(252,188,58)// window = white
         for (let i = 0; i < this.cols; i++) { 
             for (let j = 0; j < this.rows; j++) { 
                 let wx = this.x + paddingX + i * (winW + paddingX); // X position
