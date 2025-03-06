@@ -255,8 +255,10 @@ function lightningFlash() {
         yLightning1 = yLightning2;
         xLightning2 += int(random(-20, 20));
         yLightning2 += int(random(5, 20));
+        strokeWeight(random(2, 6));
         line(xLightning1, yLightning1, xLightning2, yLightning2);
     }
+    noStroke();
 }
 
 function windowResized() {
