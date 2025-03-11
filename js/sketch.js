@@ -36,17 +36,18 @@ let strikeThreshold = 90;
 let lightningCooldown = 20;
 
 function setupSliders() {
-    sliders.push(document.getElementById("slider1")); // 0 = Work Slider
-    sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
-    sliders.push(document.getElementById("slider3")); // 2 = Therapy Slider
-    sliders.push(document.getElementById("slider4")); // 4 = Medication Slider
+    // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
+    // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
+    // sliders.push(document.getElementById("slider3")); // 2 = Therapy Slider
+    // sliders.push(document.getElementById("slider4")); // 4 = Medication Slider
 
-    for (let i = 0; i < sliders.length; i++) {
-        sliderValues.push(sliders[i].value);
-        sliders[i].oninput = function() {
-            sliderValues[i] = this.value;
-            //console.log("Slider " + (i + 1) + " value: " + sliderValues[i]);
-        }
+    for (let i = 0; i < 4; i++) {
+        // sliderValues.push(sliders[i].value);
+        // sliders[i].oninput = function() {
+        //     sliderValues[i] = this.value;
+        //     //console.log("Slider " + (i + 1) + " value: " + sliderValues[i]);
+        // }
+        sliderValues[i] = 50;
     }
 }
 
@@ -58,12 +59,12 @@ function setupButtons() {
 
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener("click", () => {
-            sliders[i].value = int(sliders[i].value) + sliderIncrease;
+            //sliders[i].value = int(sliders[i].value) + sliderIncrease;
 
             sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
             if (sliderValues[i] > 100) sliderValues[i] = 100;
 
-            console.log(sliders[i].value);
+            console.log(sliderValues[i]);
         })
     }
 }
@@ -206,8 +207,8 @@ function draw() {
 
     sliderDecayTimer--;
     if (sliderDecayTimer == 0) {
-        for (let i = 0; i < sliders.length; i++) {
-            sliders[i].value = int(sliders[i].value) - 1;
+        for (let i = 0; i < sliderValues.length; i++) {
+            //sliders[i].value = int(sliders[i].value) - 1;
             if (sliderValues[i] > 0)
                 sliderValues[i] = int(sliderValues[i]) - 1;
         }
