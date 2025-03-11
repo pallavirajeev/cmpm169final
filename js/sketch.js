@@ -6,6 +6,12 @@ let color = 0;
 let sliders = [];
 let sliderValues = [];
 
+let buttons = [];
+
+const sliderIncrease = 5;
+const sliderDecay = 20;
+let sliderDecayTimer = sliderDecay;
+
 let velocities = [], deltaCtrs = [], deltas = [], frameRateVals = [];
 let oldPositions = [], positions = [];
 let numDiscs = 1042;
@@ -34,8 +40,6 @@ function setupSliders() {
     sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
     sliders.push(document.getElementById("slider3")); // 2 = Therapy Slider
     sliders.push(document.getElementById("slider4")); // 4 = Medication Slider
-    sliders.push(document.getElementById("slider5")); // 5 = Diet Slider
-    sliders.push(document.getElementById("slider6")); // 6 = Exercise Slider
 
     for (let i = 0; i < sliders.length; i++) {
         sliderValues.push(sliders[i].value);
@@ -43,6 +47,24 @@ function setupSliders() {
             sliderValues[i] = this.value;
             //console.log("Slider " + (i + 1) + " value: " + sliderValues[i]);
         }
+    }
+}
+
+function setupButtons() {
+    buttons.push(document.getElementById("button1"));
+    buttons.push(document.getElementById("button2"));
+    buttons.push(document.getElementById("button3"));
+    buttons.push(document.getElementById("button4"));
+
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", () => {
+            sliders[i].value = int(sliders[i].value) + sliderIncrease;
+
+            sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
+            if (sliderValues[i] > 100) sliderValues[i] = 100;
+
+            console.log(sliders[i].value);
+        })
     }
 }
 
@@ -85,7 +107,7 @@ function setup() {
     let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
     canvas.parent("canvas-container");
     setupSliders();
-    
+    setupButtons();
     // Initialize particles
     let randomX = 0, randomY = 0;
     let ctr = numDiscs;
@@ -171,9 +193,31 @@ function draw() {
     windPan = map(sliderValues[3], 0, 100, .8, -.8); // Medication slider controls wind, affect pan of wind
     rainVolume = map(sliderValues[2], 0, 100, 1, 0); // Therapy slider controls intensity, affects volume of rain
     
-    let allowRespawning = gravity > 1;
-    
     // Update and draw particles
+    drawRainParticles();
+    
+    stroke(0);
+    
+    // draw ground line
+    line(0, ground, width, ground);
+
+    windSound.pan(windPan,.5);
+    rainSound.setVolume(rainVolume,.5);
+
+    sliderDecayTimer--;
+    if (sliderDecayTimer == 0) {
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i].value = int(sliders[i].value) - 1;
+            if (sliderValues[i] > 0)
+                sliderValues[i] = int(sliderValues[i]) - 1;
+        }
+        sliderDecayTimer = sliderDecay;
+    }
+}
+
+function drawRainParticles() {
+    let allowRespawning = gravity > 1;
+
     for (let i = 0; i < numDiscs; i++) {
         oldPositions[i].x = positions[i].x;
         oldPositions[i].y = positions[i].y;
@@ -224,24 +268,15 @@ function draw() {
             positions[i].x = -10;
         }
     }
-    stroke(0);
-    
-    // draw ground line
-    line(0, ground, width, ground);
-
-    windSound.pan(windPan,.5);
-    rainSound.setVolume(rainVolume,.5);
-
 }
 
 function strikeChance() {
-    let workWeight = int(random(0, sliderValues[0])) / 6;
-    let sleepWeight = int(random(100 - sliderValues[1], 100)) / 6;
-    let therapyWeight = int(random(100 - sliderValues[2], 100)) / 6;
-    let medWeight = int(random(100 - sliderValues[3], 100)) / 6;
-    let dietWeight = int(random(100 - sliderValues[4], 100)) / 6;
-    let exerciseWeight = int(random(100 - sliderValues[5], 100)) / 6;
-    return workWeight + sleepWeight + therapyWeight + medWeight + dietWeight + exerciseWeight;
+    let workWeight = int(random(0, sliderValues[0])) / 4;
+    let sleepWeight = int(random(100 - sliderValues[1], 100)) / 4;
+    let therapyWeight = int(random(100 - sliderValues[2], 100)) / 4;
+    let medWeight = int(random(100 - sliderValues[3], 100)) / 4;
+
+    return workWeight + sleepWeight + therapyWeight + medWeight;
 }
 
 function lightningFlash() {
