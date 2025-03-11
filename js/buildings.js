@@ -33,7 +33,7 @@ class Buildings{
         let paddingX = (this.w - this.cols * winW) / (this.cols + 1); // horizontal padding
         let paddingY = (this.h - this.rows * winH) / (this.rows + 1); // vertical padding
         
-        fill(252,188,58)// window = white
+        fill(200, 150, 50);// window = yellow
         for (let i = 0; i < this.cols; i++) { 
             for (let j = 0; j < this.rows; j++) { 
                 let wx = this.x + paddingX + i * (winW + paddingX); // X position

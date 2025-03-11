@@ -26,6 +26,7 @@ let rainSound;
 
 let buildings = []; //array for buildings 
 let ground;
+let puddles = [];
 
 let xLightning1 = 0;
 let xLightning2 = 0;
@@ -123,7 +124,7 @@ function setup() {
         ctr -= 1;
     }
     
-    ground = height; // ground line position
+    ground = height - 60; // ground line position
     generateBuildings(); // generate buildings only once at startup
     
     windSound.setVolume(.3);
@@ -131,6 +132,14 @@ function setup() {
     //windSound.loop(true);
     //rainSound.play();
     //rainSound.loop(true);
+
+    for (let i = 0; i < 10; i++) {
+        let puddle = {
+            x: random(width),
+            width: random(20, 100),
+        };
+        puddles.push(puddle);
+    }
 }
 
 function generateBuildings() {
@@ -177,9 +186,11 @@ function draw() {
             lightningCooldown = int(random(5, 20));
         } else {
             lightningCooldown--;
-            background(0);
+            setGloomyBackground();
         }
-    } else background(0);
+    } else {
+        setGloomyBackground();
+    }
 
     stroke(0); // building outline = black
     strokeWeight(3); 
@@ -200,7 +211,16 @@ function draw() {
     stroke(0);
     
     // draw ground line
-    line(0, ground, width, ground);
+    fill(20, 25, 30);
+    rect(0, ground, width, height - ground);
+    
+    // Add puddle reflections
+    for (let i = 0; i < puddles.length; i++) {
+        let puddle = puddles[i];
+        fill(100, 120, 150, 40);
+        //fill(50, 50, 255, 20);
+        ellipse(puddle.x, ground + 15, puddle.width, puddle.width / 4);
+    }
 
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
@@ -213,6 +233,26 @@ function draw() {
                 sliderValues[i] = int(sliderValues[i]) - 1;
         }
         sliderDecayTimer = sliderDecay;
+    }
+}
+
+function setGloomyBackground() {
+    drawingContext.fillStyle = 'rgb(30, 30, 50)';  // Dark gray with a bit of blue for mood
+    rect(0, 0, width, height);
+
+    // gradient for the sky 
+    let gradient = drawingContext.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, 'rgb(30, 30, 50)');  // Top of the sky
+    gradient.addColorStop(1, 'rgb(40, 40, 70)');  // Bottom of the sky, closer to the horizon
+    drawingContext.fillStyle = gradient;
+    rect(0, 0, width, height);
+}
+
+function drawPuddles() {
+    for (let i = 0; i < puddles.length; i++) {
+        let puddle = puddles[i];
+        fill(100, 120, 150, 20); // Light blue color with transparency for reflections
+        ellipse(puddle.x, ground + 5, puddle.width, puddle.width / 4);
     }
 }
 
@@ -299,6 +339,6 @@ function lightningFlash() {
 
 function windowResized() {
     resizeCanvas(canvasContainer.width(), canvasContainer.height());
-    ground = height; // update ground position
+    ground = height - 60; // update ground position
     generateBuildings(); // regenerate buildings when window resized
 }
