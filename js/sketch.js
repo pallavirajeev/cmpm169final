@@ -148,9 +148,9 @@ function generateBuildings() {
     
     // generates buildings for entire width
     while (x < width - 50) {
-        let w = random(50, 100); // random width for buildings
-        let h = random(100, 250); // random height for buildings
-        let roofStyle = int(random(3)); // random roof style
+        let w = random(40, 120); // random width for buildings
+        let h = random(80, 300); // random height for buildings
+        let roofStyle = int(random(6)); // random roof style
         
         // store building data
         buildings.push( new Buildings(
