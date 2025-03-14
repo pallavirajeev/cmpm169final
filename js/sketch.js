@@ -12,6 +12,8 @@ const sliderIncrease = 5;
 const sliderDecay = 20;
 let sliderDecayTimer = sliderDecay;
 
+let emojisActive = [];
+
 let velocities = [], deltaCtrs = [], deltas = [], frameRateVals = [];
 let oldPositions = [], positions = [];
 let numDiscs = 1042;
@@ -72,6 +74,7 @@ function setupButtons() {
 
             sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
             if (sliderValues[i] > 100) sliderValues[i] = 100;
+            emojisActive.push(new Emojis(i));
 
             console.log(sliderValues[i]);
         })
@@ -307,7 +310,19 @@ function draw() {
         //fill(50, 50, 255, 20);
         ellipse(puddle.x, ground + 15, puddle.width, puddle.width / 4);
     }
+
+    // Draw emojis
+    for (let i = 0; i < emojisActive.length; i++) {
+        emojisActive[i].update();
+        emojisActive[i].draw();
+        if (!emojisActive[i].active) {
+            emojisActive.splice(i, 1); // remove emoji if not active
+            i--;
+        }
+    }
+
     drawWalkers();
+
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
 
