@@ -36,6 +36,14 @@ let yLightning2 = 0;
 let strikeThreshold = 90;
 let lightningCooldown = 20;
 
+let walkSprites;
+const SPRITE_COLUMNS = 4; // Adjust based on your sprite sheet
+const SPRITE_ROWS = 4; // Adjust if needed
+let frameTimer = 0;
+let frameIndex = 0;
+let spriteWidth, spriteHeight;
+let walkers = [];
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -102,6 +110,7 @@ function preload() {
     //sound loading
     windSound = loadSound('./assets/wind.mp3');
     rainSound = loadSound('./assets/rain.mp3');
+    walkSprites = loadImage('./assets/walkSprites.png');
 }
 
 function setup() {
@@ -124,6 +133,10 @@ function setup() {
         ctr -= 1;
     }
     
+    spriteWidth = walkSprites.width / SPRITE_COLUMNS;
+    spriteHeight = walkSprites.height / SPRITE_ROWS;
+    generateWalkers();
+
     ground = height - 60; // ground line position
     generateBuildings(); // generate buildings only once at startup
     
@@ -140,6 +153,79 @@ function setup() {
         };
         puddles.push(puddle);
     }
+}
+
+function generateWalkers() {
+    walkers = walkers.filter(walker => walker.x >= -20 && walker.x <= width + 20); // Keep only onscreen walkers
+
+    let totalWalkers = 8;
+    let totalSliderValue = sliderValues.reduce((a, b) => a + b, 0);
+
+    // Calculate the required number of walkers for each slider
+    let requiredWorkCount = floor((sliderValues[0] / totalSliderValue) * totalWalkers);
+    let requiredSleepCount = floor((sliderValues[1] / totalSliderValue) * totalWalkers);
+    let requiredTherapyCount = floor((sliderValues[2] / totalSliderValue) * totalWalkers);
+    let requiredMedicationCount = totalWalkers - requiredWorkCount - requiredSleepCount - requiredTherapyCount;
+
+    // Count the current number of walkers for each slider
+    let currentWorkCount = walkers.filter(walker => walker.colorIndex === 0).length;
+    let currentSleepCount = walkers.filter(walker => walker.colorIndex === 1).length;
+    let currentTherapyCount = walkers.filter(walker => walker.colorIndex === 2).length;
+    let currentMedicationCount = walkers.filter(walker => walker.colorIndex === 3).length;
+
+    // Helper function to create a walker
+    function createWalker(colorIndex) {
+        let direction = random() > 0.5 ? 1 : -1;
+        let walker = {
+            x: random(width),
+            y: height - 40,
+            speed: random(1, 3) * direction,
+            flipped: direction === -1,
+            colorIndex: colorIndex,
+            alive: true,
+            respawnTimer: 0,
+        };
+        walkers.push(walker);
+    }
+
+    // Adjust the number of walkers for each slider
+    while (currentWorkCount < requiredWorkCount) {
+        createWalker(0); // Work Slider (first row)
+        currentWorkCount++;
+    }
+    while (currentSleepCount < requiredSleepCount) {
+        createWalker(1); // Sleep Slider (second row)
+        currentSleepCount++;
+    }
+    while (currentTherapyCount < requiredTherapyCount) {
+        createWalker(2); // Therapy Slider (third row)
+        currentTherapyCount++;
+    }
+    while (currentMedicationCount < requiredMedicationCount) {
+        createWalker(3); // Medication Slider (fourth row)
+        currentMedicationCount++;
+    }
+
+    // Remove excess walkers if necessary
+    walkers = walkers.filter(walker => {
+        if (walker.colorIndex === 0 && currentWorkCount > requiredWorkCount) {
+            currentWorkCount--;
+            return false;
+        }
+        if (walker.colorIndex === 1 && currentSleepCount > requiredSleepCount) {
+            currentSleepCount--;
+            return false;
+        }
+        if (walker.colorIndex === 2 && currentTherapyCount > requiredTherapyCount) {
+            currentTherapyCount--;
+            return false;
+        }
+        if (walker.colorIndex === 3 && currentMedicationCount > requiredMedicationCount) {
+            currentMedicationCount--;
+            return false;
+        }
+        return true;
+    });
 }
 
 function generateBuildings() {
@@ -221,7 +307,7 @@ function draw() {
         //fill(50, 50, 255, 20);
         ellipse(puddle.x, ground + 15, puddle.width, puddle.width / 4);
     }
-
+    drawWalkers();
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
 
@@ -336,6 +422,35 @@ function lightningFlash() {
     }
     noStroke();
 }
+
+function drawWalkers() {
+    frameTimer++;
+    if (frameTimer > 10) { // Adjust for animation speed
+        frameIndex = (frameIndex + 1) % SPRITE_COLUMNS;
+        frameTimer = 0;
+    }
+
+    for (let walker of walkers) {
+        if (!walker.alive) continue;
+        walker.x += walker.speed;
+        if (walker.x < -20) walker.x = width + 20;
+        if (walker.x > width + 20) walker.x = -20;
+
+        let spriteX = frameIndex * spriteWidth;
+        let spriteY = walker.colorIndex * spriteHeight;
+
+        push();
+        translate(walker.x, walker.y);
+        if (walker.flipped) {
+            scale(-1, 1);
+            image(walkSprites, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+        } else {
+            image(walkSprites, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+        }
+        pop();
+    }
+}
+
 
 function windowResized() {
     resizeCanvas(canvasContainer.width(), canvasContainer.height());
