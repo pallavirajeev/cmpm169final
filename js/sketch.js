@@ -46,6 +46,9 @@ let frameIndex = 0;
 let spriteWidth, spriteHeight;
 let walkers = [];
 
+let fires = [];
+let noiseOffset = 0;
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -283,8 +286,16 @@ function draw() {
         setGloomyBackground();
     }
 
+    for (let fire of fires) {
+        fire.update();
+        fire.draw();
+    }
+    
+    fires = fires.filter(f => f.lifeSpan > 0);
+
     stroke(0); // building outline = black
     strokeWeight(3); 
+
     for (let building of buildings) {
         building.draw();
     }
@@ -438,6 +449,14 @@ function lightningFlash() {
         line(xLightning1, yLightning1, xLightning2, yLightning2);
     }
     noStroke();
+    // Check if lightning strikes a building
+    for (let building of buildings) {
+        if (xLightning2 > building.x && xLightning2 < building.x + building.w) {
+            if (random() < 0.5) { // 50% chance to spawn fire
+                fires.push(new Fire(xLightning2, building.y));
+            }
+        }
+    }
 }
 
 function drawWalkers() {
@@ -471,6 +490,6 @@ function drawWalkers() {
 
 function windowResized() {
     resizeCanvas(canvasContainer.width(), canvasContainer.height());
-    ground = height - 60; // update ground position
-    generateBuildings(); // regenerate buildings when window resized
+    //ground = height - 60; // update ground position
+    //generateBuildings(); // regenerate buildings when window resized
 }

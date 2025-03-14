@@ -11,6 +11,8 @@ class Buildings{
         this.buildingColor = this.getRandomDarkColor();
     }
 
+    
+
     getRandomDarkColor() {
         let stormyColors = [
             [44, 62, 80],   // Dark Blue-Gray
@@ -80,4 +82,61 @@ class Buildings{
     }
 
 
+}
+
+class Fire {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.lifeSpan = 200; // Fire duration
+        this.smokeParticles = [];
+        this.noiseOffset = random(100);
+    }
+
+    update() {
+        this.lifeSpan--;
+        if (this.lifeSpan > 0) {
+            this.smokeParticles.push(new Smoke(this.x, this.y)); // Smoke spawns exactly above fire
+        }
+        this.smokeParticles = this.smokeParticles.filter(p => p.lifeSpan > 0);
+    }
+
+    draw() {
+        for (let smoke of this.smokeParticles) {
+            smoke.update();
+            smoke.draw();
+        }
+        if (this.lifeSpan > 0) {
+            let fireShakeX = random(-4, 4); // More violent shaking
+            let fireShakeY = random(-4, 4);
+
+            textSize(30); // Bigger fire emoji
+            textAlign(CENTER, CENTER);
+            text("🔥", this.x + fireShakeX, this.y + fireShakeY);
+        }
+    }
+}
+
+class Smoke {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = random(15, 25);
+        this.lifeSpan = 100;
+        this.noiseOffset = random(100);
+    }
+
+    update() {
+        this.y -= 1; // Keep the original slow upward movement
+        this.x += map(noise(this.noiseOffset), 0, 1, -1, 1); // Subtle horizontal movement
+        this.size *= 0.97;
+        this.lifeSpan--;
+        this.noiseOffset += 0.1;
+    }
+
+    draw() {
+        fill(150, 150, 150, map(this.lifeSpan, 0, 100, 0, 255));
+        noStroke();
+        ellipse(this.x, this.y - this.size / 2, this.size, this.size); // Smoke aligns properly above fire
+    }
 }
