@@ -180,7 +180,7 @@ function generateWalkers() {
     function createWalker(colorIndex) {
         let direction = random() > 0.5 ? 1 : -1;
         let walker = {
-            x: random(width),
+            x: random() > 0.5 ? random(-1, -20) : random(width + 20, width+1),
             y: height - 40,
             speed: random(1, 3) * direction,
             flipped: direction === -1,
@@ -211,21 +211,23 @@ function generateWalkers() {
 
     // Remove excess walkers if necessary
     walkers = walkers.filter(walker => {
-        if (walker.colorIndex === 0 && currentWorkCount > requiredWorkCount) {
-            currentWorkCount--;
-            return false;
-        }
-        if (walker.colorIndex === 1 && currentSleepCount > requiredSleepCount) {
-            currentSleepCount--;
-            return false;
-        }
-        if (walker.colorIndex === 2 && currentTherapyCount > requiredTherapyCount) {
-            currentTherapyCount--;
-            return false;
-        }
-        if (walker.colorIndex === 3 && currentMedicationCount > requiredMedicationCount) {
-            currentMedicationCount--;
-            return false;
+        if (!walker.alive) {
+            if (walker.colorIndex === 0 && currentWorkCount > requiredWorkCount) {
+                currentWorkCount--;
+                return false;
+            }
+            if (walker.colorIndex === 1 && currentSleepCount > requiredSleepCount) {
+                currentSleepCount--;
+                return false;
+            }
+            if (walker.colorIndex === 2 && currentTherapyCount > requiredTherapyCount) {
+                currentTherapyCount--;
+                return false;
+            }
+            if (walker.colorIndex === 3 && currentMedicationCount > requiredMedicationCount) {
+                currentMedicationCount--;
+                return false;
+            }
         }
         return true;
     });
@@ -322,7 +324,7 @@ function draw() {
     }
 
     drawWalkers();
-
+    generateWalkers();
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
 
@@ -448,8 +450,8 @@ function drawWalkers() {
     for (let walker of walkers) {
         if (!walker.alive) continue;
         walker.x += walker.speed;
-        if (walker.x < -20) walker.x = width + 20;
-        if (walker.x > width + 20) walker.x = -20;
+        if (walker.x < -20) walker.alive= false; 
+        if (walker.x > width + 20) walker.alive= false;
 
         let spriteX = frameIndex * spriteWidth;
         let spriteY = walker.colorIndex * spriteHeight;
