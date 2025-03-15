@@ -56,6 +56,11 @@ let activationTimes = [];
 
 let boundaryCrossings = new Array(numDiscs).fill(0); // Add this line to initialize the boundary crossings counter
 
+let lastWorkCount = 0;
+let lastSleepCount = 0;
+let lastTherapyCount = 0;
+let lastMedicationCount = 0;
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -180,10 +185,18 @@ function generateWalkers() {
     let totalSliderValue = sliderValues.reduce((a, b) => a + b, 0);
 
     // Calculate the required number of walkers for each slider
-    let requiredWorkCount = floor((sliderValues[0] / totalSliderValue) * totalWalkers);
-    let requiredSleepCount = floor((sliderValues[1] / totalSliderValue) * totalWalkers);
-    let requiredTherapyCount = floor((sliderValues[2] / totalSliderValue) * totalWalkers);
-    let requiredMedicationCount = totalWalkers - requiredWorkCount - requiredSleepCount - requiredTherapyCount;
+    let requiredWorkCount = totalSliderValue > 0 ? floor((sliderValues[0] / totalSliderValue) * totalWalkers) : lastWorkCount;
+    let requiredSleepCount = totalSliderValue > 0 ? floor((sliderValues[1] / totalSliderValue) * totalWalkers) : lastSleepCount;
+    let requiredTherapyCount = totalSliderValue > 0 ? floor((sliderValues[2] / totalSliderValue) * totalWalkers) : lastTherapyCount;
+    let requiredMedicationCount = totalSliderValue > 0 ? totalWalkers - requiredWorkCount - requiredSleepCount - requiredTherapyCount : lastMedicationCount;
+
+    // Update the last counts
+    if (totalSliderValue > 0) {
+        lastWorkCount = requiredWorkCount;
+        lastSleepCount = requiredSleepCount;
+        lastTherapyCount = requiredTherapyCount;
+        lastMedicationCount = requiredMedicationCount;
+    }
 
     // Count the current number of walkers for each slider
     let currentWorkCount = walkers.filter(walker => walker.colorIndex === 0).length;
@@ -195,7 +208,7 @@ function generateWalkers() {
     function createWalker(colorIndex) {
         let direction = random() > 0.5 ? 1 : -1;
         let walker = {
-            x: random() > 0.5 ? random(-1, -20) : random(width + 20, width+1),
+            x: random() > 0.5 ? random(-10, -20) : random(width + 20, width+10),
             y: height - 40,
             speed: random(1, 3) * direction,
             flipped: direction === -1,
@@ -211,19 +224,19 @@ function generateWalkers() {
     }
 
     // Adjust the number of walkers for each slider
-    while (currentWorkCount < requiredWorkCount) {
+    while (currentWorkCount < requiredWorkCount && walkers.length < totalWalkers) {
         createWalker(0); // Work Slider (first row)
         currentWorkCount++;
     }
-    while (currentSleepCount < requiredSleepCount) {
+    while (currentSleepCount < requiredSleepCount && walkers.length < totalWalkers) {
         createWalker(1); // Sleep Slider (second row)
         currentSleepCount++;
     }
-    while (currentTherapyCount < requiredTherapyCount) {
+    while (currentTherapyCount < requiredTherapyCount && walkers.length < totalWalkers) {
         createWalker(2); // Therapy Slider (third row)
         currentTherapyCount++;
     }
-    while (currentMedicationCount < requiredMedicationCount) {
+    while (currentMedicationCount < requiredMedicationCount && walkers.length < totalWalkers) {
         createWalker(3); // Medication Slider (fourth row)
         currentMedicationCount++;
     }
@@ -416,7 +429,9 @@ function drawRainParticles() {
 
         for (let j = 0; j < numDiscs; j++) {
             if (i !== j) {
-                resolveParticleCollisions(i, j);
+                if (positions[i].y < height) {
+                    resolveParticleCollisions(i, j);
+                }
             }
         }
 
@@ -446,11 +461,8 @@ function drawRainParticles() {
                 velocities[i].y = random(1, 3);
                 boundaryCrossings[i] = 0; // Reset boundary crossings counter on respawn
             } else {
-                positions[i].y = random(height + 100, height + 190);
-                positions[i].x = random(width);
-                velocities[i].x = 0;
-                velocities[i].y = 0;
-                activationTimes[i] = activationTimes[i]+frameCount;
+                activationTimes[i] = (noise(noiseOffset) * 1000)+ frameCount;
+                noiseOffset += random(0.1,-0.1);
             }
         }
 
