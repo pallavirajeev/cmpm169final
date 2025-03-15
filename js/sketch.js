@@ -61,6 +61,9 @@ let lastSleepCount = 0;
 let lastTherapyCount = 0;
 let lastMedicationCount = 0;
 
+let noRainTimer = 0; // Timer to track duration without rain
+let rainCheckTimer = 0;
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -303,6 +306,8 @@ function mousePressed(){
 
 function draw() {
     clear();
+    let rainOnScreen = false;
+
     if (strikeChance() > strikeThreshold) {
         if (lightningCooldown == 0) {
             lightningFlash();
@@ -336,9 +341,15 @@ function draw() {
     windPan = map(sliderValues[3], 0, 100, .8, -.8); // Medication slider controls wind, affect pan of wind
     rainVolume = map(sliderValues[2], 0, 100, 1, 0); // Therapy slider controls intensity, affects volume of rain
     
-    // Update and draw particles
-    drawRainParticles();
-    
+    if (rainCheckTimer % 60 == 0) { // Check for rain only once every second (assuming 60 FPS)
+        rainOnScreen = drawRainParticles();
+    }
+    else
+    {
+        drawRainParticles();
+    }
+    rainCheckTimer++;
+
     stroke(0);
     
     // draw ground line
@@ -363,7 +374,7 @@ function draw() {
         }
     }
 
-    drawWalkers();
+    drawWalkers(rainOnScreen);
     generateWalkers();
     windSound.pan(windPan,.5);
     rainSound.setVolume(rainVolume,.5);
@@ -406,6 +417,7 @@ function drawPuddles() {
 
 function drawRainParticles() {
     let allowRespawning = gravity > 1;
+    let rainOnScreen = false;
 
     // Randomly select a % of the raindrops for collision resolution
     let selectedRaindrops = [];
@@ -497,7 +509,14 @@ function drawRainParticles() {
         if (positions[i].y > height) {
             velocities[i].y = max(velocities[i].y, 0);
         }
+
+        // Check if any raindrop is on screen
+        if (positions[i].y > 0 && positions[i].y < height) {
+            rainOnScreen = true;
+        }
     }
+
+    return rainOnScreen;
 }
 
 function strikeChance() {
@@ -534,11 +553,17 @@ function lightningFlash() {
     }
 }
 
-function drawWalkers() {
+function drawWalkers(rainOnScreen) {
     frameTimer++;
     if (frameTimer > 10) { // Adjust for animation speed
         frameIndex = (frameIndex + 1) % SPRITE_COLUMNS;
         frameTimer = 0;
+    }
+
+    if (!rainOnScreen) {
+        noRainTimer++;
+    } else {
+        noRainTimer = 0;
     }
 
     for (let walker of walkers) {
@@ -558,15 +583,30 @@ function drawWalkers() {
             if (walker.umbrellaFrameIndex >= SPRITE_COLUMNS) {
                 walker.umbrellaOpening = false;
                 walker.hasUmbrella = true;
-                walker.umbrellaFrameIndex = 0;
+                walker.umbrellaFrameIndex = SPRITE_COLUMNS - 1; // Set to last frame for closing animation
             }
             spriteX = walker.umbrellaFrameIndex * spriteWidth;
             spriteY = walker.colorIndex * spriteHeight;
             drawSprite(walker, umbrellaOpeningSprites, spriteX, spriteY);
         } else if (walker.hasUmbrella) {
-            spriteX = frameIndex * spriteWidth;
-            spriteY = walker.colorIndex * spriteHeight;
-            drawSprite(walker, umbrellaWalkSprites, spriteX, spriteY);
+            if (noRainTimer > 120) { // 2 seconds without rain (assuming 60 FPS)
+                walker.umbrellaFrameTimer++;
+                if (walker.umbrellaFrameTimer > 10) { // Adjust for animation speed
+                    walker.umbrellaFrameIndex--;
+                    walker.umbrellaFrameTimer = 0;
+                }
+                if (walker.umbrellaFrameIndex < 0) {
+                    walker.hasUmbrella = false;
+                    walker.umbrellaFrameIndex = 0;
+                }
+                spriteX = walker.umbrellaFrameIndex * spriteWidth;
+                spriteY = walker.colorIndex * spriteHeight;
+                drawSprite(walker, umbrellaOpeningSprites, spriteX, spriteY);
+            } else {
+                spriteX = frameIndex * spriteWidth;
+                spriteY = walker.colorIndex * spriteHeight;
+                drawSprite(walker, umbrellaWalkSprites, spriteX, spriteY);
+            }
         } else {
             spriteX = frameIndex * spriteWidth;
             spriteY = walker.colorIndex * spriteHeight;
