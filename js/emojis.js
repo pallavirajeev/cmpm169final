@@ -22,7 +22,7 @@ class Emojis{
     emojiIDtoEmoji(emojiID){
         if (emojiID == 0) return "💻";
         if (emojiID == 1) return "💤";
-        if (emojiID == 2) return "🗓"; // Consider switching to 📅📆🗓️ any of these
+        if (emojiID == 2) return "🗓️"; // Consider switching to 📅📆🗓️ any of these
         if (emojiID == 3) return "💊";
         else return "💩"; // If you get poop, something went wrong
     }
