@@ -39,6 +39,8 @@ let strikeThreshold = 90;
 let lightningCooldown = 20;
 
 let walkSprites;
+let umbrellaOpeningSprites;
+let umbrellaWalkSprites;
 const SPRITE_COLUMNS = 4; // Adjust based on your sprite sheet
 const SPRITE_ROWS = 4; // Adjust if needed
 let frameTimer = 0;
@@ -117,6 +119,8 @@ function preload() {
     windSound = loadSound('./assets/wind.mp3');
     rainSound = loadSound('./assets/rain.mp3');
     walkSprites = loadImage('./assets/walkSprites.png');
+    umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
+    umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
 }
 
 function setup() {
@@ -190,6 +194,10 @@ function generateWalkers() {
             colorIndex: colorIndex,
             alive: true,
             respawnTimer: 0,
+            hasUmbrella: false,
+            umbrellaOpening: false,
+            umbrellaFrameIndex: 0,
+            umbrellaFrameTimer: 0,
         };
         walkers.push(walker);
     }
@@ -408,6 +416,13 @@ function drawRainParticles() {
         fill(110, 150, 255);
         ellipse(positions[i].x, positions[i].y, diameter, diameter);
 
+        // Check for collision with walkers
+        for (let walker of walkers) {
+            if (!walker.hasUmbrella && dist(positions[i].x, positions[i].y, walker.x, walker.y) < radius + spriteWidth / 2) {
+                walker.umbrellaOpening = true;
+            }
+        }
+
         if (positions[i].y > height + 200) {
             if (allowRespawning) {
                 
@@ -472,21 +487,45 @@ function drawWalkers() {
         if (walker.x < -20) walker.alive= false; 
         if (walker.x > width + 20) walker.alive= false;
 
-        let spriteX = frameIndex * spriteWidth;
-        let spriteY = walker.colorIndex * spriteHeight;
+        let spriteX, spriteY;
 
-        push();
-        translate(walker.x, walker.y);
-        if (walker.flipped) {
-            scale(-1, 1);
-            image(walkSprites, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+        if (walker.umbrellaOpening) {
+            walker.umbrellaFrameTimer++;
+            if (walker.umbrellaFrameTimer > 10) { // Adjust for animation speed
+                walker.umbrellaFrameIndex++;
+                walker.umbrellaFrameTimer = 0;
+            }
+            if (walker.umbrellaFrameIndex >= SPRITE_COLUMNS) {
+                walker.umbrellaOpening = false;
+                walker.hasUmbrella = true;
+                walker.umbrellaFrameIndex = 0;
+            }
+            spriteX = walker.umbrellaFrameIndex * spriteWidth;
+            spriteY = walker.colorIndex * spriteHeight;
+            drawSprite(walker, umbrellaOpeningSprites, spriteX, spriteY);
+        } else if (walker.hasUmbrella) {
+            spriteX = frameIndex * spriteWidth;
+            spriteY = walker.colorIndex * spriteHeight;
+            drawSprite(walker, umbrellaWalkSprites, spriteX, spriteY);
         } else {
-            image(walkSprites, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+            spriteX = frameIndex * spriteWidth;
+            spriteY = walker.colorIndex * spriteHeight;
+            drawSprite(walker, walkSprites, spriteX, spriteY);
         }
-        pop();
     }
 }
 
+function drawSprite(walker, spriteSheet, spriteX, spriteY) {
+    push();
+    translate(walker.x, walker.y);
+    if (walker.flipped) {
+        scale(-1, 1);
+        image(spriteSheet, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+    } else {
+        image(spriteSheet, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+    }
+    pop();
+}
 
 function windowResized() {
     resizeCanvas(canvasContainer.width(), canvasContainer.height());
