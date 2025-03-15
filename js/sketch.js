@@ -47,6 +47,8 @@ let frameTimer = 0;
 let frameIndex = 0;
 let spriteWidth, spriteHeight;
 let walkers = [];
+let walkerSpeedMultiplier = 1;
+let minimumWalkerSpeed = 0.4;
 
 let burningSprites = [];
 const MAX_BURNING_SPRITES = 1;
@@ -221,7 +223,7 @@ function generateWalkers() {
         let walker = {
             x: random() > 0.5 ? random(-10, -20) : random(width + 20, width+10),
             y: height - 40,
-            speed: random(1, 3) * direction,
+            speed: random(1, 2) * direction,
             flipped: direction === -1,
             colorIndex: colorIndex,
             alive: true,
@@ -410,6 +412,8 @@ function draw() {
         if (burningSprite.x < -25 || burningSprite.x > width + 25) burningSprite.alive = false;
         drawBurningSprite(burningSprite);
     }
+
+    walkerSpeedMultiplier = map(sliderValues[0], 0, 100, minimumWalkerSpeed, 2); // Work slider controls speed of walkers
 
     drawWalkers(rainOnScreen);
     generateWalkers();
@@ -605,7 +609,7 @@ function drawWalkers(rainOnScreen) {
 
     for (let walker of walkers) {
         if (!walker.alive) continue;
-        walker.x += walker.speed;
+        walker.x += walker.speed * walkerSpeedMultiplier;
         if (walker.x < -20) walker.alive= false; 
         if (walker.x > width + 20) walker.alive= false;
 
