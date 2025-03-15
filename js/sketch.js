@@ -407,6 +407,14 @@ function drawPuddles() {
 function drawRainParticles() {
     let allowRespawning = gravity > 1;
 
+    // Randomly select a % of the raindrops for collision resolution
+    let selectedRaindrops = [];
+    for (let i = 0; i < activeRaindrops; i++) {
+        if (Math.random() < 0.7) {
+            selectedRaindrops.push(i);
+        }
+    }
+
     for (let i = 0; i < activeRaindrops; i++) {
         if (frameCount < activationTimes[i]) continue; // Skip raindrop if not yet activated
 
@@ -427,10 +435,13 @@ function drawRainParticles() {
         deltas[i].y = 0.0;
         deltaCtrs[i] = 0;
 
-        for (let j = 0; j < numDiscs; j++) {
-            if (i !== j) {
-                if (positions[i].y < height) {
-                    resolveParticleCollisions(i, j);
+        // Only resolve collisions for selected raindrops
+        if (selectedRaindrops.includes(i)) {
+            for (let j = 0; j < numDiscs; j++) {
+                if (i !== j) {
+                    if (positions[i].y < height) {
+                        resolveParticleCollisions(i, j);
+                    }
                 }
             }
         }
