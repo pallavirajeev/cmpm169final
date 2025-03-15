@@ -51,6 +51,11 @@ let walkers = [];
 let fires = [];
 let noiseOffset = 0;
 
+let activeRaindrops = 0;
+let activationTimes = [];
+
+let boundaryCrossings = new Array(numDiscs).fill(0); // Add this line to initialize the boundary crossings counter
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -132,6 +137,7 @@ function setup() {
     // Initialize particles
     let randomX = 0, randomY = 0;
     let ctr = numDiscs;
+    let noiseOffset = 0;
     while (ctr >= 0) {
         randomX = random(width);
         randomY = random(height, height + 400);
@@ -140,6 +146,8 @@ function setup() {
         deltas.push(createVector(0.0, 0.0));
         positions.push(createVector(randomX, randomY));
         oldPositions.push(createVector(0, 0));
+        activationTimes.push(noise(noiseOffset) * 1000); // Perlin noise for activation time
+        noiseOffset += 0.1;
         ctr -= 1;
     }
     
@@ -155,7 +163,7 @@ function setup() {
     //windSound.loop(true);
     //rainSound.play();
     //rainSound.loop(true);
-
+    
     for (let i = 0; i < 10; i++) {
         let puddle = {
             x: random(width),
@@ -323,7 +331,7 @@ function draw() {
     // draw ground line
     fill(20, 25, 30);
     rect(0, ground, width, height - ground);
-    
+    noStroke();
     // Add puddle reflections
     for (let i = 0; i < puddles.length; i++) {
         let puddle = puddles[i];
@@ -331,7 +339,7 @@ function draw() {
         //fill(50, 50, 255, 20);
         ellipse(puddle.x, ground + 15, puddle.width, puddle.width / 4);
     }
-
+    stroke(0);
     // Draw emojis
     for (let i = 0; i < emojisActive.length; i++) {
         emojisActive[i].update();
@@ -355,6 +363,11 @@ function draw() {
                 sliderValues[i] = int(sliderValues[i]) - 1;
         }
         sliderDecayTimer = sliderDecay;
+    }
+
+    // Gradually activate raindrops
+    if (activeRaindrops < numDiscs) {
+        activeRaindrops += 1;
     }
 }
 
@@ -381,7 +394,9 @@ function drawPuddles() {
 function drawRainParticles() {
     let allowRespawning = gravity > 1;
 
-    for (let i = 0; i < numDiscs; i++) {
+    for (let i = 0; i < activeRaindrops; i++) {
+        if (frameCount < activationTimes[i]) continue; // Skip raindrop if not yet activated
+
         oldPositions[i].x = positions[i].x;
         oldPositions[i].y = positions[i].y;
 
@@ -392,7 +407,6 @@ function drawRainParticles() {
         velocities[i].y *= 0.96;
         velocities[i].x = constrain(velocities[i].x, -1000, 1000);
         //velocities[i].y = constrain(velocities[i].y, -100, 100);
-
 
         deltas[i].x = 0.0;
         deltas[i].y = 0.0;
@@ -425,17 +439,27 @@ function drawRainParticles() {
 
         if (positions[i].y > height + 200) {
             if (allowRespawning) {
-                
                 positions[i].y = random(-200, -50);
                 positions[i].x = random(width);
                 velocities[i].y = random(1, 3);
+                boundaryCrossings[i] = 0; // Reset boundary crossings counter on respawn
             }
         }
 
-        if (positions[i].x < -10) {
-            positions[i].x = width + 10;
-        } else if (positions[i].x > width + 10) {
-            positions[i].x = -10;
+        if (positions[i].x < -10 || positions[i].x > width + 10) {
+            boundaryCrossings[i]++;
+            if (boundaryCrossings[i] > 3) {
+                positions[i].y = random(-200, -50);
+                positions[i].x = random(width);
+                velocities[i].y = random(1, 3);
+                boundaryCrossings[i] = 0; // Reset boundary crossings counter on respawn
+            } else {
+                if (positions[i].x < -10) {
+                    positions[i].x = width + 10;
+                } else if (positions[i].x > width + 10) {
+                    positions[i].x = -10;
+                }
+            }
         }
     }
 }
