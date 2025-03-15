@@ -47,13 +47,13 @@ class Emojis{
         this.tick++;
         if (this.y >= height - 50){
             this.y = height - 50;
-            this.onGround = true;
-            if (this.breakAfterTime){
-                this.groundCounter++;
-                if (this.groundCounter >= this.groundSurvivalTime){
-                    this.active = false; // emoji disappears after 30 ticks on ground   
-                }
+            this.groundCounter++;
+            let multiplier = 1;
+            if (!this.breakAfterTime) multiplier = 3;
+            if (this.groundCounter >= this.groundSurvivalTime * multiplier){
+                this.active = false; // emoji disappears after 30 ticks on ground   
             }
+            
         }
         else{
             if (this.tick % this.tickInterval == 0){
