@@ -48,6 +48,13 @@ let frameIndex = 0;
 let spriteWidth, spriteHeight;
 let walkers = [];
 
+let burningSprites = [];
+const MAX_BURNING_SPRITES = 1;
+const BURNING_SPRITE_COLUMNS = 2;
+const BURNING_SPRITE_SCALE = 0.7;
+let burningFrameTimer = 0;
+let burningFrameIndex = 0;
+
 let fires = [];
 let noiseOffset = 0;
 
@@ -134,6 +141,7 @@ function preload() {
     walkSprites = loadImage('./assets/walkSprites.png');
     umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
     umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
+    burningSpriteImage = loadImage('./assets/burningSprite.png');
 }
 
 function setup() {
@@ -268,6 +276,26 @@ function generateWalkers() {
     });
 }
 
+function spawnBurningSprites() {
+    // Remove dead burning sprites
+    burningSprites = burningSprites.filter(sprite => sprite.alive);
+
+    // Check if we need to spawn new burning sprites
+    if (fires.length > 2 && burningSprites.length < MAX_BURNING_SPRITES) {
+        if (random() < 0.5) { // 50% chance to spawn
+            let direction = random() > 0.5 ? 1 : -1;
+            let burningSprite = {
+                x: random() > 0.5 ? random(-15, -20) : random(width + 20, width + 15),
+                y: height - 55,
+                speed: random(5, 8) * direction,
+                flipped: direction === -1,
+                alive: true
+            };
+            burningSprites.push(burningSprite);
+        }
+    }
+}
+
 function generateBuildings() {
     buildings = []; // clear any existing buildings
     let x = 10; // X position for the first building
@@ -372,6 +400,15 @@ function draw() {
             emojisActive.splice(i, 1); // remove emoji if not active
             i--;
         }
+    }
+
+    // Spawn and draw burning sprites
+    spawnBurningSprites();
+    for (let burningSprite of burningSprites) {
+        if (!burningSprite.alive) continue;
+        burningSprite.x += burningSprite.speed;
+        if (burningSprite.x < -25 || burningSprite.x > width + 25) burningSprite.alive = false;
+        drawBurningSprite(burningSprite);
     }
 
     drawWalkers(rainOnScreen);
@@ -623,6 +660,28 @@ function drawSprite(walker, spriteSheet, spriteX, spriteY) {
         image(spriteSheet, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
     } else {
         image(spriteSheet, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+    }
+    pop();
+}
+
+function drawBurningSprite(burningSprite) {
+    burningFrameTimer++;
+    if (burningFrameTimer > 2) { // Adjust for animation speed
+        burningFrameIndex = (burningFrameIndex + 1) % BURNING_SPRITE_COLUMNS;
+        burningFrameTimer = 0;
+    }
+
+    let spriteX = burningFrameIndex * spriteWidth;
+    let spriteY = 0; // Only one row
+
+    push();
+    translate(burningSprite.x, burningSprite.y);
+    scale(BURNING_SPRITE_SCALE);
+    if (burningSprite.flipped) {
+        scale(-1, 1);
+        image(burningSpriteImage, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
+    } else {
+        image(burningSpriteImage, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
     }
     pop();
 }
