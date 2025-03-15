@@ -400,13 +400,15 @@ function drawRainParticles() {
         oldPositions[i].x = positions[i].x;
         oldPositions[i].y = positions[i].y;
 
-        positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
-        positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
-        
+        if (positions[i].y <= height + 200) {
+            positions[i].x = oldPositions[i].x + timeStep * velocities[i].x + timeStep * wind;
+            positions[i].y = oldPositions[i].y + timeStep * velocities[i].y + gravity * timeStep;
+        }
+
         velocities[i].x *= 0.97;
         velocities[i].y *= 0.96;
         velocities[i].x = constrain(velocities[i].x, -1000, 1000);
-        //velocities[i].y = constrain(velocities[i].y, -100, 100);
+        velocities[i].y = constrain(velocities[i].y, 0, 1000);
 
         deltas[i].x = 0.0;
         deltas[i].y = 0.0;
@@ -417,7 +419,7 @@ function drawRainParticles() {
                 resolveParticleCollisions(i, j);
             }
         }
-        
+
         if (deltaCtrs[i] > 0) {
             positions[i].x += 1.2 * deltas[i].x / deltaCtrs[i];
             positions[i].y += 1.2 * deltas[i].y / deltaCtrs[i];
@@ -443,15 +445,22 @@ function drawRainParticles() {
                 positions[i].x = random(width);
                 velocities[i].y = random(1, 3);
                 boundaryCrossings[i] = 0; // Reset boundary crossings counter on respawn
+            } else {
+                positions[i].y = random(height + 100, height + 190);
+                positions[i].x = random(width);
+                velocities[i].x = 0;
+                velocities[i].y = 0;
+                activationTimes[i] = activationTimes[i]+frameCount;
             }
         }
 
         if (positions[i].x < -10 || positions[i].x > width + 10) {
             boundaryCrossings[i]++;
             if (boundaryCrossings[i] > 3) {
-                positions[i].y = random(-200, -50);
+                positions[i].y = random(height + 100, height + 190);
                 positions[i].x = random(width);
-                velocities[i].y = random(1, 3);
+                velocities[i].y = 0;
+                velocities[i].x = 0;
                 boundaryCrossings[i] = 0; // Reset boundary crossings counter on respawn
             } else {
                 if (positions[i].x < -10) {
@@ -460,6 +469,10 @@ function drawRainParticles() {
                     positions[i].x = -10;
                 }
             }
+        }
+
+        if (positions[i].y > height) {
+            velocities[i].y = max(velocities[i].y, 0);
         }
     }
 }
