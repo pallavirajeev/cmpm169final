@@ -27,6 +27,9 @@ let windSound;
 let rainSound;
 
 let buildings = []; //array for buildings 
+let totalWindows = 0;
+let windowsOff = 0;
+let windowsProjectedOff = 0; //The amount of windows that should be off depending on the sleep slider value
 let ground;
 let puddles = [];
 
@@ -321,6 +324,13 @@ function generateBuildings() {
         
         x += w + 10; // new x position: move to the right and adding spacing btwn buildings
     }
+    for (let building of buildings) {
+        totalWindows += building.windows.length;
+    }
+    windowsProjectedOff = int((sliderValues[1] / 100) * totalWindows);
+    while (windowsOff != windowsProjectedOff) {
+        handleLights();
+    }
 }
 
 function mousePressed(){
@@ -359,6 +369,8 @@ function draw() {
 
     stroke(0); // building outline = black
     strokeWeight(3); 
+
+    handleLights(); // handle building lights
 
     for (let building of buildings) {
         building.draw();
@@ -436,14 +448,38 @@ function draw() {
     }
 }
 
+function handleLights() {
+    windowsProjectedOff = int((sliderValues[1] / 100) * totalWindows);
+    if (windowsProjectedOff > totalWindows) windowsProjectedOff = totalWindows; // Clamp to total windows
+    if (windowsOff < windowsProjectedOff) {
+        windowsOff++;
+        let tempBuilding = random(buildings);
+        while (tempBuilding.windowsOff >= tempBuilding.windows.length) {
+            tempBuilding = random(buildings);
+        }
+        tempBuilding.disableWindow();
+    }
+    else if (windowsOff > windowsProjectedOff) {
+        windowsOff--;
+        let tempBuilding = random(buildings);
+        while (tempBuilding.windowsOff <= 0) {
+            tempBuilding = random(buildings);
+        }
+        tempBuilding.enableWindow();
+    }
+}
+
 function setGloomyBackground() {
     drawingContext.fillStyle = 'rgb(30, 30, 50)';  // Dark gray with a bit of blue for mood
     rect(0, 0, width, height);
 
+    // Calculate brightness based on sleep slider value
+    let brightness = map(sliderValues[1], 0, 100, 130, 30);
+
     // gradient for the sky 
     let gradient = drawingContext.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, 'rgb(30, 30, 50)');  // Top of the sky
-    gradient.addColorStop(1, 'rgb(40, 40, 70)');  // Bottom of the sky, closer to the horizon
+    gradient.addColorStop(1, `rgb(${brightness}, ${brightness}, ${brightness + 20})`);  // Bottom of the sky, closer to the horizon
     drawingContext.fillStyle = gradient;
     rect(0, 0, width, height);
 }
