@@ -76,6 +76,8 @@ let lastMedicationCount = 0;
 let noRainTimer = 0; // Timer to track duration without rain
 let rainCheckTimer = 0;
 
+const colorIncrement = 0.2;
+
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
     // sliders.push(document.getElementById("slider2")); // 1 = Sleep Slider
@@ -373,6 +375,10 @@ function draw() {
     handleLights(); // handle building lights
 
     for (let building of buildings) {
+        if (sliderValues[3] > 75)
+            reduceColor(building);
+        else
+            replenishColor(building);
         building.draw();
     }
     
@@ -724,6 +730,25 @@ function drawBurningSprite(burningSprite) {
         image(burningSpriteImage, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
     }
     pop();
+}
+
+function reduceColor(building) {
+    let buildingColor = building.bldgColor;
+    for (let i = 0; i < buildingColor.length; i++) {
+        if (buildingColor[i] < 120) buildingColor[i] += colorIncrement;
+        else if (buildingColor[i] > 120) buildingColor[i] -= colorIncrement;
+    }
+    building.bldgColor = buildingColor;
+}
+
+function replenishColor(building) {
+    let buildingColor = building.bldgColor;
+    let originalColor = building.origColor;
+    for (let i = 0; i < buildingColor.length; i++) {
+        if (buildingColor[i] < originalColor[i]) buildingColor[i] += colorIncrement;
+        else if (buildingColor[i] > originalColor[i]) buildingColor[i] -= colorIncrement;
+    }
+    building.bldgColor = buildingColor;
 }
 
 function windowResized() {

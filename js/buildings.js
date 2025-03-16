@@ -4,13 +4,17 @@ class Buildings{
         this.y = y;
         this.w = w;
         this.h = h;
+
         this.roofStyle = roofStyle;
         this.cols = cols;
         this.rows = rows;
+
         this.windowsOff = 0;
         this.windows = [];
         this.setupWindows();
+
         this.buildingColor = this.getRandomDarkColor();
+        this.originalColor = [...this.buildingColor];
     }
 
     setupWindows(){
@@ -26,6 +30,7 @@ class Buildings{
             }
         }
     }
+
     disableWindow() {
         let randomIndex = int(random(this.windows.length)); // select a random window
         while (!this.windows[randomIndex].active) { // if the window is already inactive, select another one
@@ -101,6 +106,18 @@ class Buildings{
         for (let win of this.windows){
             win.draw(); // draw the window
         }
+    }
+
+    get bldgColor() {
+        return this.buildingColor;
+    }
+
+    set bldgColor(color) {
+        this.buildingColor = color;
+    }
+
+    get origColor() {
+        return this.originalColor;
     }
 }
 
