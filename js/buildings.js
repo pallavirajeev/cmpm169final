@@ -11,6 +11,7 @@ class Buildings{
         this.windows = [];
         this.setupWindows();
         this.buildingColor = this.getRandomDarkColor();
+        this.originalColor = this.buildingColor;
     }
 
     setupWindows(){
@@ -101,6 +102,18 @@ class Buildings{
         for (let win of this.windows){
             win.draw(); // draw the window
         }
+    }
+
+    get bldgColor() {
+        return this.buildingColor;
+    }
+
+    set bldgColor(color) {
+        this.buildingColor = color;
+    }
+
+    get origColor() {
+        return this.originalColor;
     }
 }
 

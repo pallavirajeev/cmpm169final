@@ -373,6 +373,9 @@ function draw() {
     handleLights(); // handle building lights
 
     for (let building of buildings) {
+        if (sliderValues[3] > 75) {
+            reduceColor(building);
+        }
         building.draw();
     }
     
@@ -724,6 +727,15 @@ function drawBurningSprite(burningSprite) {
         image(burningSpriteImage, -spriteWidth / 2, -spriteHeight / 2, spriteWidth, spriteHeight, spriteX, spriteY, spriteWidth, spriteHeight);
     }
     pop();
+}
+
+function reduceColor(building) {
+    let color = building.bldgColor;
+    for (let i = 0; i < color.length; i++) {
+        if (color[i] < 120) color[i] += 0.2;
+        else if (color[i] > 120) color[i] -= 0.2;
+    }
+    building.bldgColor = color;
 }
 
 function windowResized() {
