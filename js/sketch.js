@@ -25,6 +25,11 @@ let gravity = 0.9;
 
 let windSound;
 let rainSound;
+let fireSound;
+let thunderSound;
+let emojiSound = [4];
+let emojiPan;
+let firePan;
 
 let buildings = []; //array for buildings 
 let totalWindows = 0;
@@ -94,6 +99,22 @@ function setupSliders() {
     }
 }
 
+function preload() {
+    //sound loading
+    windSound = loadSound('./assets/wind.mp3');
+    rainSound = loadSound('./assets/rain.mp3');
+    fireSound = loadSound('./assets/fireSound.mp3');
+    thunderSound = loadSound('./assets/Thundersound.mp3');
+    emojiSound[0] = loadSound('./assets/workSound.mp3');
+    emojiSound[1] = loadSound('./assets/sleepSound.mp3');
+    emojiSound[2] = loadSound('./assets/therapySound.mp3');
+    emojiSound[3] = loadSound('./assets/medSound.mp3');
+    walkSprites = loadImage('./assets/walkSprites.png');
+    umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
+    umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
+    burningSpriteImage = loadImage('./assets/burningSprite.png');
+}
+
 function setupButtons() {
     buttons.push(document.getElementById("button1"));
     buttons.push(document.getElementById("button2"));
@@ -107,6 +128,9 @@ function setupButtons() {
             sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
             if (sliderValues[i] > 100) sliderValues[i] = 100;
             emojisActive.push(new Emojis(i));
+            emojiPan = map(emojisActive[emojisActive.length-1].pos, 0, width, -.8, .8)
+            emojiSound[i].pan(emojiPan);
+            emojiSound[i].play();
 
             console.log(sliderValues[i]);
         })
@@ -141,15 +165,22 @@ function resolveParticleCollisions(idxA, idxB) {
     }
 }
 
-function preload() {
+/*function preload() {
     //sound loading
     windSound = loadSound('./assets/wind.mp3');
     rainSound = loadSound('./assets/rain.mp3');
+    fireSound = loadSound('./assets/fireSound.mp3');
+    smokeSound = loadSound('./assets/smokeSound.mp3');
+    thunderSound = loadSound('./assets/Thundersound.mp3');
+    emojiSound[0] = loadSound('./assets/workSound.mp3');
+    emojiSound[1] = loadSound('./assets/sleepSound.mp3');
+    emojiSound[2] = loadSound('./assets/therapySound.mp3');
+    emojiSound[3] = loadSound('./assets/medSound.mp3');
     walkSprites = loadImage('./assets/walkSprites.png');
     umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
     umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
     burningSpriteImage = loadImage('./assets/burningSprite.png');
-}
+}*/
 
 function setup() {
     canvasContainer = $("#canvas-container");
@@ -182,10 +213,6 @@ function setup() {
     generateBuildings(); // generate buildings only once at startup
     
     windSound.setVolume(.3);
-    //windSound.play();
-    //windSound.loop(true);
-    //rainSound.play();
-    //rainSound.loop(true);
     
     for (let i = 0; i < 10; i++) {
         let puddle = {
@@ -353,6 +380,8 @@ function draw() {
     if (strikeChance() > strikeThreshold) {
         if (lightningCooldown == 0) {
             lightningFlash();
+            //thunderSound.setPitch(random(.1, .9));
+            thunderSound.play();
             lightningCooldown = int(random(5, 20));
         } else {
             lightningCooldown--;
@@ -631,6 +660,9 @@ function lightningFlash() {
         if (xLightning2 > building.x && xLightning2 < building.x + building.w) {
             if (random() < 0.5) { // 50% chance to spawn fire
                 fires.push(new Fire(xLightning2, building.y));
+                firePan = map(xLightning2, 0, width, -.8, .8);
+                fireSound.pan(firePan);
+                fireSound.play();
             }
         }
     }

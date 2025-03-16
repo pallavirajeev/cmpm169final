@@ -35,6 +35,10 @@ class Emojis{
         else return true;
     }
 
+    get pos(){
+        return this.x;
+    }
+
     draw(){
         textSize(30);
         if (this.active) text(this.emojiText, this.x, this.y);
@@ -69,5 +73,5 @@ class Emojis{
             this.x += this.xSpeed; // side to side movement
         }
     }
-
+    
 }
