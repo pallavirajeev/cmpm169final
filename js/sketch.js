@@ -99,22 +99,6 @@ function setupSliders() {
     }
 }
 
-function preload() {
-    //sound loading
-    windSound = loadSound('./assets/wind.mp3');
-    rainSound = loadSound('./assets/rain.mp3');
-    fireSound = loadSound('./assets/fireSound.mp3');
-    thunderSound = loadSound('./assets/Thundersound.mp3');
-    emojiSound[0] = loadSound('./assets/workSound.mp3');
-    emojiSound[1] = loadSound('./assets/sleepSound.mp3');
-    emojiSound[2] = loadSound('./assets/therapySound.mp3');
-    emojiSound[3] = loadSound('./assets/medSound.mp3');
-    walkSprites = loadImage('./assets/walkSprites.png');
-    umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
-    umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
-    burningSpriteImage = loadImage('./assets/burningSprite.png');
-}
-
 function setupButtons() {
     buttons.push(document.getElementById("button1"));
     buttons.push(document.getElementById("button2"));
@@ -165,22 +149,21 @@ function resolveParticleCollisions(idxA, idxB) {
     }
 }
 
-/*function preload() {
+function preload() {
     //sound loading
     windSound = loadSound('./assets/wind.mp3');
     rainSound = loadSound('./assets/rain.mp3');
     fireSound = loadSound('./assets/fireSound.mp3');
-    smokeSound = loadSound('./assets/smokeSound.mp3');
-    thunderSound = loadSound('./assets/Thundersound.mp3');
+    thunderSound = loadSound('./assets/thunderSound.mp3');
     emojiSound[0] = loadSound('./assets/workSound.mp3');
     emojiSound[1] = loadSound('./assets/sleepSound.mp3');
     emojiSound[2] = loadSound('./assets/therapySound.mp3');
     emojiSound[3] = loadSound('./assets/medSound.mp3');
     walkSprites = loadImage('./assets/walkSprites.png');
-    umbrellaOpeningSprites = loadImage('./assets/umbrellaSpritesOpening.png');
-    umbrellaWalkSprites = loadImage('./assets/umbrellaSprites.png');
+    umbrellaOpeningSprites = loadImage('./assets/umbrellaspritesopening.png');
+    umbrellaWalkSprites = loadImage('./assets/umbrellasprites.png');
     burningSpriteImage = loadImage('./assets/burningSprite.png');
-}*/
+}
 
 function setup() {
     canvasContainer = $("#canvas-container");
