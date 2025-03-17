@@ -76,7 +76,10 @@ let lastMedicationCount = 0;
 let noRainTimer = 0; // Timer to track duration without rain
 let rainCheckTimer = 0;
 
+const medicineThreshold = 75;
 const colorIncrement = 0.2;
+const maxOverlayAlpha = 200;
+let overlayAlpha = 0;
 
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
@@ -375,7 +378,7 @@ function draw() {
     handleLights(); // handle building lights
 
     for (let building of buildings) {
-        if (sliderValues[3] > 75)
+        if (sliderValues[3] > medicineThreshold)
             reduceColor(building);
         else
             replenishColor(building);
@@ -452,6 +455,11 @@ function draw() {
     if (activeRaindrops < numDiscs) {
         activeRaindrops += 1;
     }
+
+    if (sliderValues[3] > 75)
+        increaseOverlay();
+    else
+        reduceOverlay();
 }
 
 function handleLights() {
@@ -749,6 +757,18 @@ function replenishColor(building) {
         else if (buildingColor[i] > originalColor[i]) buildingColor[i] -= colorIncrement;
     }
     building.bldgColor = buildingColor;
+}
+
+function increaseOverlay() {
+    if (overlayAlpha < maxOverlayAlpha) overlayAlpha += colorIncrement;
+    fill(120, 120, 120, overlayAlpha);
+    rect(0, 0, width, height);
+}
+
+function reduceOverlay() {
+    if (overlayAlpha > 0) overlayAlpha -= colorIncrement;
+    fill(120, 120, 120, overlayAlpha);
+    rect(0, 0, width, height);
 }
 
 function windowResized() {
