@@ -396,7 +396,7 @@ function draw() {
     pop();
 
     stroke(0); // building outline = black
-    strokeWeight(3); 
+    strokeWeight(2); 
 
     handleLights(); // handle building lights
 
