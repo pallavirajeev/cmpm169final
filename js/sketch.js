@@ -81,7 +81,10 @@ let lastMedicationCount = 0;
 let noRainTimer = 0; // Timer to track duration without rain
 let rainCheckTimer = 0;
 
+const medicineThreshold = 75;
 const colorIncrement = 0.2;
+const maxOverlayAlpha = 200;
+let overlayAlpha = 0;
 
 function setupSliders() {
     // sliders.push(document.getElementById("slider1")); // 0 = Work Slider
@@ -112,10 +115,11 @@ function setupButtons() {
             sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
             if (sliderValues[i] > 100) sliderValues[i] = 100;
             emojisActive.push(new Emojis(i));
-            emojiPan = map(emojisActive[emojisActive.length-1].pos, 0, width, -.8, .8)
-            emojiSound[i].pan(emojiPan);
-            emojiSound[i].play();
-
+            if(!emojiSound[i].isPlaying()){
+                emojiPan = map(emojisActive[emojisActive.length-1].pos, 0, width, -.8, .8)
+                emojiSound[i].pan(emojiPan);
+                emojiSound[i].play();
+            }
             console.log(sliderValues[i]);
         })
     }
@@ -398,7 +402,7 @@ function draw() {
 
     //noStroke();
     for (let building of buildings) {
-        if (sliderValues[3] > 75)
+        if (sliderValues[3] > medicineThreshold)
             reduceColor(building);
         else
             replenishColor(building);
@@ -478,8 +482,12 @@ function draw() {
     if (activeRaindrops < numDiscs) {
         activeRaindrops += 1;
     }
-
     image(brainSpriteImage2, 0, height+250, 1000, -500);
+    if (sliderValues[3] > 75)
+        increaseOverlay();
+    else
+        reduceOverlay();
+
 }
 
 function handleLights() {
@@ -780,6 +788,18 @@ function replenishColor(building) {
         else if (buildingColor[i] > originalColor[i]) buildingColor[i] -= colorIncrement;
     }
     building.bldgColor = buildingColor;
+}
+
+function increaseOverlay() {
+    if (overlayAlpha < maxOverlayAlpha) overlayAlpha += colorIncrement;
+    fill(120, 120, 120, overlayAlpha);
+    rect(0, 0, width, height);
+}
+
+function reduceOverlay() {
+    if (overlayAlpha > 0) overlayAlpha -= colorIncrement;
+    fill(120, 120, 120, overlayAlpha);
+    rect(0, 0, width, height);
 }
 
 function windowResized() {
