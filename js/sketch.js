@@ -163,6 +163,9 @@ function preload() {
     umbrellaOpeningSprites = loadImage('./assets/umbrellaspritesopening.png');
     umbrellaWalkSprites = loadImage('./assets/umbrellasprites.png');
     burningSpriteImage = loadImage('./assets/burningSprite.png');
+    brainSpriteImage = loadImage('./assets/brain.png');
+    brainSpriteImage2 = loadImage('./assets/brain2.png');
+    brainSpriteImage3 = loadImage('./assets/brain3.png');
 }
 
 function setup() {
@@ -381,11 +384,19 @@ function draw() {
     
     fires = fires.filter(f => f.lifeSpan > 0);
 
+    push();
+    scale(-1, 1);
+    //fill(255,182,193);
+    //rect(0, ground, width, height - ground);
+    image(brainSpriteImage, -width, height+185, 1000, -500);
+    pop();
+
     stroke(0); // building outline = black
     strokeWeight(3); 
 
     handleLights(); // handle building lights
 
+    //noStroke();
     for (let building of buildings) {
         if (sliderValues[3] > 75)
             reduceColor(building);
@@ -410,17 +421,20 @@ function draw() {
     }
     rainCheckTimer++;
 
-    stroke(0);
-    
+    strokeWeight(2);
+    //noStroke(); // remove stroke for puddles
     // draw ground line
-    fill(20, 25, 30);
+    fill(215,123,183);
     rect(0, ground, width, height - ground);
+    push();
+    image(brainSpriteImage3, 0, height+40, 1000, -100);
+    pop();
     noStroke();
     // Add puddle reflections
     for (let i = 0; i < puddles.length; i++) {
         let puddle = puddles[i];
-        fill(100, 120, 150, 40);
-        //fill(50, 50, 255, 20);
+        //fill(100, 120, 150, 40);
+        fill(50, 50, 255, 50);
         ellipse(puddle.x, ground + 15, puddle.width, puddle.width / 4);
     }
     stroke(0);
@@ -464,6 +478,8 @@ function draw() {
     if (activeRaindrops < numDiscs) {
         activeRaindrops += 1;
     }
+
+    image(brainSpriteImage2, 0, height+250, 1000, -500);
 }
 
 function handleLights() {
