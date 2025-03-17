@@ -112,10 +112,11 @@ function setupButtons() {
             sliderValues[i] = int(sliderValues[i]) + sliderIncrease;
             if (sliderValues[i] > 100) sliderValues[i] = 100;
             emojisActive.push(new Emojis(i));
-            emojiPan = map(emojisActive[emojisActive.length-1].pos, 0, width, -.8, .8)
-            emojiSound[i].pan(emojiPan);
-            emojiSound[i].play();
-
+            if(!emojiSound[i].isPlaying()){
+                emojiPan = map(emojisActive[emojisActive.length-1].pos, 0, width, -.8, .8)
+                emojiSound[i].pan(emojiPan);
+                emojiSound[i].play();
+            }
             console.log(sliderValues[i]);
         })
     }
