@@ -257,7 +257,6 @@ function generateWalkers() {
         };
         walkers.push(walker);
     }
-
     // Adjust the number of walkers for each slider
     while (currentWorkCount < requiredWorkCount && walkers.length < totalWalkers) {
         createWalker(0); // Work Slider (first row)
@@ -690,6 +689,20 @@ function drawWalkers(rainOnScreen) {
 
     for (let walker of walkers) {
         if (!walker.alive) continue;
+
+        if (!walker.isMedicated) {
+            for (let emoji of emojisActive.filter(e => e.emojiID == 3)) {
+                if (Math.trunc(walker.x) == Math.trunc(emoji.pos) && emoji.isOnGround()) {
+                    emojisActive.splice(emojisActive.indexOf(emoji), 1);
+                    walker.isMedicated = true;
+                    break;
+                }
+            }
+        }
+
+        if (walker.isMedicated)
+            walker.colorIndex = 3;
+
         walker.x += walker.speed * walkerSpeedMultiplier;
         if (walker.x < -20) walker.alive= false; 
         if (walker.x > width + 20) walker.alive= false;
