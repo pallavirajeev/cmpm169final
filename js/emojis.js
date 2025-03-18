@@ -74,4 +74,7 @@ class Emojis{
         }
     }
     
+    isOnGround() {
+        return this.y == 750;
+    }
 }
